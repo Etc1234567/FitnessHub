@@ -1,0 +1,93 @@
+@page "/workout/add"
+@using System.Text.Json
+@rendermode InteractiveServer
+
+<PageTitle>Add a Workout</PageTitle>
+<h1 style="text-align: center"> Add A Workout </h1>
+<div class="addForm">
+    <form>
+        <div class="mb-3">
+            <label class="form-label">When Is Your Workout?</label>
+            <input type="date" class="form-control">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">What Type of Workout (ie. Leg, Chest, Smalls, Back)?</label>
+            <input type="string" class="form-control">
+        </div>
+        <h2 style="text-align: center">Build Your Plan: </h2>
+        <p class="text-danger">@(errorMsg != "" ? errorMsg : "")</p>
+        <div class="contentWorkout">
+            @for(int i = 0; i < currentCount; i++)
+            {
+                <div class="workoutPlanBlock">
+                    <div class="mb-3">
+                        <label for="exercise" class="form-label purple">Exercise @(i+1): </label>
+                        <select name="exercise" class="form-control">
+                            @foreach (Workout workout in workouts)
+                            {
+                                <option value="@workout.Name">@workout.Name</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="sets" class="form-label">How Many Sets?: </label>
+                        <input type="number" name="sets" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label for="reps" class="form-label">How Many Reps?: </label>
+                        <input type="number" name="reps" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label for="warmup" class="form-label">Is this a warm-up?: </label>
+                        <input type="checkbox" name="warmup" class="form-check-input">
+                    </div>
+                    <div class="mb-3">
+                        <label for="weight" class="form-label">Weight (Optional): </label>
+                        <input type="number" name="weight" class="form-control">
+                    </div>
+                </div>
+            }
+        </div>
+        <span class="btn btn-info" @onclick="IncrementBlock">Add Another</span>
+        <span class="btn btn-danger" @onclick="DecrementBlock">Remove A Workout</span>
+        <button type="submit" class="btn btn-success">Submit Workout</button>
+    </form>
+    
+</div>
+
+@code {
+    public string jsonString;
+    public string errorMsg;
+    public List<Workout> workouts;
+
+    JsonSerializerOptions options = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        };
+    protected override async Task OnInitializedAsync()
+    {
+        string fileName = "wwwroot/exercises.json";
+        jsonString = File.ReadAllText(fileName);
+        workouts = JsonSerializer.Deserialize<List<Workout>>(jsonString, options)!;
+    }
+
+    [Parameter]
+    public int Increment {get; set;} = 1;
+    private int currentCount = 2;
+    private void IncrementBlock()
+    {
+        errorMsg = "";
+        currentCount++;
+    }
+    private void DecrementBlock()
+    {
+        if (currentCount == 2) {
+            errorMsg = "Woah there, you need at least 2 exercises!";
+        }
+        else 
+        {
+            errorMsg = "";
+            currentCount--;
+        }
+    }
+}

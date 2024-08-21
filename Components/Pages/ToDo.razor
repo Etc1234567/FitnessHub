@@ -1,0 +1,154 @@
+﻿@page "/todo"
+@using System.Text.Json 
+@rendermode InteractiveServer
+
+<PageTitle>ToDo</PageTitle>
+
+<div class="flex head">
+    <h1>Smalls Day</h1>
+    <h2>0% Complete</h2>
+</div>
+
+<h4>Warm-Up</h4>
+<table class="table container">
+    <thead>
+        <tr>
+            <th> Exercise Name </th>
+            <th> Sets </th>
+            <th> Reps </th>
+            <th> Weight </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr class="@(isCompleted ? "completed" : "none")">
+            <td>Push ups</td>
+            <td>1</td>
+            <td>20</td>
+            <td>Bodyweight</td>
+            <td><input type="checkbox" @onclick="ToggleCompleted"></td>
+        </tr>
+        <tr class="@(isCompleted ? "completed" : "none")">
+            <td>Machine Press</td>
+            <td>3</td>
+            <td>10</td>
+            <td>30</td>
+            <td><input type="checkbox" @onclick="ToggleCompleted"></td>
+        </tr>
+    </tbody>
+</table>
+<h4>Main</h4>
+<table class="table container">
+    <thead>
+        <tr>
+            <th> Exercise Name </th>
+            <th> Sets </th>
+            <th> Reps </th>
+            <th> Weight </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr class="@(isCompleted ? "completed" : "none")">
+            <td>Barbell Curl</td>
+            <td>4</td>
+            <td>15</td>
+            <td>10</td>
+            <td><input type="checkbox" @onclick="ToggleCompleted"></td>
+        </tr>
+        <tr class="@(isCompleted ? "completed" : "none")">
+            <td>Close Press</td>
+            <td>3</td>
+            <td>10</td>
+            <td>20</td>
+            <td><input type="checkbox" @onclick="ToggleCompleted"></td>
+        </tr>
+        <tr class="@(isCompleted ? "completed" : "none")">
+            <td>2 way raise (front & lateral)</td>
+            <td>3</td>
+            <td>10</td>
+            <td>10</td>
+            <td><input type="checkbox" @onclick="ToggleCompleted"></td>
+        </tr>
+        <tr class="@(isCompleted ? "completed" : "none")">
+            <td>Upright Row</td>
+            <td>4</td>
+            <td>10</td>
+            <td>20</td>
+            <td><input type="checkbox" @onclick="ToggleCompleted"></td>
+        </tr>
+        <tr class="@(isCompleted ? "completed" : "none")">
+            <td>Preacher Curls</td>
+            <td>3</td>
+            <td>10</td>
+            <td>30</td>
+            <td><input type="checkbox" @onclick="ToggleCompleted"></td>
+        </tr>
+        <tr class="@(isCompleted ? "completed" : "none")">
+            <td>Dumbbell tricep kickbacks</td>
+            <td>4</td>
+            <td>10</td>
+            <td>15</td>
+            <td><input type="checkbox" @onclick="ToggleCompleted"></td>
+        </tr>
+        <tr class="@(isCompleted ? "completed" : "none")">
+            <td>Disco dance cables</td>
+            <td>3</td>
+            <td>10</td>
+            <td>Just cables</td>
+            <td><input type="checkbox" @onclick="ToggleCompleted"></td>
+        </tr>
+        <tr class="@(isCompleted ? "completed" : "none")">
+            <td>Dumbbell curls</td>
+            <td>3</td>
+            <td>10</td>
+            <td>30</td>
+            <td><input type="checkbox" @onclick="ToggleCompleted"></td>
+        </tr>
+        <tr class="@(isCompleted ? "completed" : "none")">
+            <td>Seated tricep dummbell behind head</td>
+            <td>3</td>
+            <td>10</td>
+            <td>30</td>
+            <td><input type="checkbox" @onclick="ToggleCompleted"></td>
+        </tr>
+        <tr class="@(isCompleted ? "completed" : "none")">
+            <td>Shrugs (heavy to light)</td>
+            <td>3</td>
+            <td>10</td>
+            <td>40</td>
+            <td><input type="checkbox" @onclick="ToggleCompleted"></td>
+        </tr>
+    </tbody>
+</table>
+
+
+@code {
+    bool isCompleted = false;
+    private void ToggleCompleted()
+    {
+        if (isCompleted == false)
+        {
+            isCompleted = true;
+        }
+        else
+        {
+            isCompleted = false;
+        }
+    }
+
+    public string jsonString;
+    public List<Workout> workouts;
+
+    JsonSerializerOptions options = new JsonSerializerOptions
+    {
+        PropertyNameCaseInsensitive = true
+    };
+    protected override async Task OnInitializedAsync() 
+{
+    string fileName = "wwwroot/exercises.json";
+    jsonString = File.ReadAllText(fileName);
+    workouts = JsonSerializer.Deserialize<List<Workout>>(jsonString, options)!;
+
+}
+}

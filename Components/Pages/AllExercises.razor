@@ -1,0 +1,99 @@
+﻿@page "/all_exercises"
+@using System.Text.Json
+@rendermode InteractiveServer
+@attribute [StreamRendering]
+
+<PageTitle>Exercises</PageTitle>
+
+<h1>All Exercises</h1>
+
+@if (workouts == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Name</th>
+                <th>Force</th>
+                <th>Level</th>
+                <th>Category</th>
+                <th>Primary Muscles</th>
+                <th>Secondary Muscles</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (Workout workout in workouts)
+            {
+                @* Formatting image URL *@
+
+                string baseImgUrl = "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/";
+                string url1 = baseImgUrl + workout.Images[0];
+                string url2 = baseImgUrl + workout.Images[1];
+
+                @* Unpacking all secondary muscles from List data to populate *@
+                string deconstructedSecondary = "";
+
+                for (int i = 0; i < workout.SecondaryMuscles.Count; i++)
+                {
+                    if (workout.SecondaryMuscles == null)
+                    {
+                        deconstructedSecondary += "none";
+                    }
+                    else
+                    {
+                        if (i == workout.SecondaryMuscles.Count - 1)
+                        {
+                            deconstructedSecondary += (workout.SecondaryMuscles[i]);
+                        }
+                        else
+                        {
+                            deconstructedSecondary += (workout.SecondaryMuscles[i] + ", ");
+                        }
+                    }
+                }
+
+                <tr>
+                    @if (@workout.Images != null)
+                    {
+                        <td><img class="tableImg" src="@url1"></td>
+                    }
+                    <td>@workout.Name</td>
+                    <td>@workout.Force</td>
+                    <td>@workout.Level</td>
+                    <td>@workout.Category</td>
+                    <td>@workout.PrimaryMuscles[0]</td>
+                    @if (workout.SecondaryMuscles == null)
+                    {
+                        <td>none</td>
+                    }
+                    else
+                    {
+                        <td>@deconstructedSecondary</td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    public string jsonString;
+    public List<Workout> workouts;
+
+    JsonSerializerOptions options = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        };
+
+    protected override async Task OnInitializedAsync()
+    {
+        string fileName = "wwwroot/exercises.json";
+        jsonString = File.ReadAllText(fileName);
+        workouts = JsonSerializer.Deserialize<List<Workout>>(jsonString, options)!;
+    }
+
+}
