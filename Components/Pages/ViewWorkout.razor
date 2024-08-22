@@ -1,0 +1,105 @@
+﻿@page "/workouts/view/{id:int}"
+@using System.Text.Json 
+@inject IExerciseService ExerciseService
+@rendermode InteractiveServer
+
+<PageTitle>ToDo</PageTitle>
+
+<div class="flex head">
+    <h1>@PlanById.Category Day: @PlanById.Date.ToShortDateString()</h1>
+    <h2>0% Complete</h2>
+</div>
+
+<h4>Warm-Up</h4>
+<table class="table container">
+    <thead>
+        <tr>
+            <th> Exercise Name </th>
+            <th> Sets </th>
+            <th> Reps </th>
+            <th> Weight </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(Exercise exercise in AllExercisesForId)
+        {
+            if(exercise.Warmup == true)
+            {
+                <tr class="@(isCompleted ? "completed" : "none")">
+                    <td>@exercise.Name</td>
+                    <td>@exercise.NumSets</td>
+                    <td>@exercise.NumReps</td>
+                    <td>@exercise.Weight</td>
+                    <td><input type="checkbox" @onclick="ToggleCompleted"></td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+<h4>Main</h4>
+<table class="table container">
+    <thead>
+        <tr>
+            <th></th>
+            <th> Exercise Name </th>
+            <th> Sets </th>
+            <th> Reps </th>
+            <th> Weight </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(Exercise exercise in AllExercisesForId)
+        {
+            if(exercise.Warmup != true)
+            {
+                <tr class="@(isCompleted ? "completed" : "none")">
+                    <td>@exercise.Name</td>
+                    <td>@exercise.NumSets</td>
+                    <td>@exercise.NumReps</td>
+                    <td>@exercise.Weight</td>
+                    <td><input type="checkbox" @onclick="ToggleCompleted"></td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    bool isCompleted = false;
+    private void ToggleCompleted()
+    {
+        if (isCompleted == false)
+        {
+            isCompleted = true;
+        }
+        else
+        {
+            isCompleted = false;
+        }
+    }
+
+    public string jsonString;
+    public List<Workout> workouts;
+
+    ExercisePlan PlanById = new ExercisePlan();
+    List<Exercise>? AllExercisesForId = new List<Exercise>();
+
+    JsonSerializerOptions options = new JsonSerializerOptions
+    {
+        PropertyNameCaseInsensitive = true
+    };
+    protected override async Task OnInitializedAsync() 
+{
+    string fileName = "wwwroot/exercises.json";
+    jsonString = File.ReadAllText(fileName);
+    workouts = JsonSerializer.Deserialize<List<Workout>>(jsonString, options)!;
+    PlanById = await ExerciseService.GetOneExercisePlan(Id);
+    AllExercisesForId = await ExerciseService.GetAllExercisesForId(Id);
+}
+}

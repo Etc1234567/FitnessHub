@@ -85,7 +85,7 @@ h4 {
 }
 
 .contentWorkout {
-    height: 500px;
+    height: 700px;
     overflow: scroll;
 }
 
@@ -95,6 +95,10 @@ h4 {
     font-weight: bold;
     padding: 5px;
     padding-right: 375px;
+}
+
+.welcomeMsg {
+    margin-top: 20px;
 }
 
 

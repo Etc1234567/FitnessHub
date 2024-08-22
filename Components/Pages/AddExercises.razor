@@ -1,0 +1,143 @@
+@page "/exercises/add/{id:int}"
+@using System.Text.Json
+@inject IExerciseService ExerciseService
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+
+<PageTitle>Add a Workout</PageTitle>
+
+<div class="flex">
+    <EditForm Model="exercise" class="addForm" OnSubmit="HandleSubmit" FormName="AddExercise">
+        <h2 style="text-align: center">🔨 Build Your Plan for @OnePlan.Category Day: </h2>
+        <div>
+            @* @for(int i = 0; i < currentCount; i++) *@
+            @* { *@
+            <div class="workoutPlanBlock">
+                <div class="mb-3">
+                    <label for="Name" class="form-label purple">Exercise: </label>
+                    <select class="form-control" name="Name" @bind="@exercise.Name">
+                        @foreach (Workout workout in workouts)
+                        {
+                            <option value="@workout.Name">@workout.Name</option>
+                        }
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="NumSets" class="form-label">How Many Sets?: </label>
+                    <input type="number" @bind-value="@exercise.NumSets" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label for="NumReps" class="form-label">How Many Reps?: </label>
+                    <input type="number" @bind-value="@exercise.NumReps" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label for="Warmup" class="form-label">Is this a warm-up?: </label>
+                    <input type="checkbox" @bind-value="@exercise.Warmup" class="form-check-input">
+                </div>
+                <div class="mb-3">
+                    <label for="Weight" class="form-label">Weight (Optional): </label>
+                    <input type="number" @bind-value="@exercise.Weight" class="form-control">
+                </div>
+            </div>
+            @* } *@
+        </div>
+        <button class="btn btn-info">Add Workout</button>
+    </EditForm>
+    <div class="addForm">
+        @* display workout plan on right *@
+        <div class="contentWorkout">
+
+            <h4>Warm-Up:</h4>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th> Exercise Name </th>
+                        <th> Sets </th>
+                        <th> Reps </th>
+                        <th> Weight </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach(Exercise exercise in AllExercisesForId)
+                    {
+                        if (exercise.Warmup == true)
+                        {
+                            <tr>
+                                <td>@exercise.Name</td>
+                                <td>@exercise.NumSets</td>
+                                <td>@exercise.NumReps</td>
+                                <td>@exercise.Weight</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+
+            <h4>Main:</h4>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th> Exercise Name </th>
+                        <th> Sets </th>
+                        <th> Reps </th>
+                        <th> Weight </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach(Exercise exercise in AllExercisesForId)
+                    {
+                        if (exercise.Warmup != true)
+                        {
+                            <tr>
+                                <td>@exercise.Name</td>
+                                <td>@exercise.NumSets</td>
+                                <td>@exercise.NumReps</td>
+                                <td>@exercise.Weight</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@code {
+    //First, unpacking id from route
+    [Parameter]
+    public int Id { get; set; }
+
+    //Next, create placeholder for linked ExercisePlan
+    ExercisePlan? OnePlan = new ExercisePlan();
+    List<Exercise>? AllExercisesForId = new List<Exercise>();
+
+    //Populating data for dropdown
+    public string jsonString;
+    public List<Workout> workouts;
+
+    JsonSerializerOptions options = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        };
+
+    //Logic for when page loads
+    protected override async Task OnInitializedAsync()
+    {
+        string fileName = "wwwroot/exercises.json";
+        jsonString = File.ReadAllText(fileName);
+        workouts = JsonSerializer.Deserialize<List<Workout>>(jsonString, options)!;
+        OnePlan = await ExerciseService.GetOneExercisePlan(Id);
+        AllExercisesForId = await ExerciseService.GetAllExercisesForId(Id);
+    }
+
+    //Form handler
+    [SupplyParameterFromForm]
+    Exercise exercise {get; set;} = new();
+    async Task HandleSubmit()
+    {
+        exercise.ExercisePlanId = Id;
+        await ExerciseService.AddExercise(exercise);
+        AllExercisesForId = await ExerciseService.GetAllExercisesForId(Id);
+    }
+
+}

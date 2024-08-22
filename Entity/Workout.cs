@@ -1,9 +1,9 @@
 using System.Text.Json;
 namespace FitnessHub.Entity;
 
+// this model is used to read the JSON data
 public class Workout 
 {
-    // public int WorkoutId {get; set;}
     public string? Name {get; set;}
     public string? Force {get; set;}
     public string? Level {get; set;}

@@ -1,11 +1,15 @@
 ﻿@page "/all_exercises"
 @using System.Text.Json
 @rendermode InteractiveServer
+@* Add false to StreamRendering if you want the page to not load until all data has been populated (rather than going to page and having it say "Loading") *@
 @attribute [StreamRendering]
 
 <PageTitle>Exercises</PageTitle>
 
 <h1>All Exercises</h1>
+<div>
+    <input type="search" placeholder="Search By Name">
+</div>
 
 @if (workouts == null)
 {
@@ -81,6 +85,8 @@ else
 }
 
 @code {
+    @* public string SearchText = ""; *@
+
     public string jsonString;
     public List<Workout> workouts;
 
@@ -94,6 +100,8 @@ else
         string fileName = "wwwroot/exercises.json";
         jsonString = File.ReadAllText(fileName);
         workouts = JsonSerializer.Deserialize<List<Workout>>(jsonString, options)!;
+
+        @* List<Workout> FilteredWorkouts = workouts.Where(w => w.Name.ToLower().Contains(SearchText.ToLower())).ToList(); *@
     }
 
 }

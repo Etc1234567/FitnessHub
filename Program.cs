@@ -1,7 +1,7 @@
 using FitnessHub.Components;
 using FitnessHub.Data;
+using FitnessHub.Services;
 using Microsoft.EntityFrameworkCore;
-// using Newtonsoft.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +19,8 @@ builder.Services.AddDbContext<DataContext>(options =>
 {
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
 });
+
+builder.Services.AddScoped<IExerciseService, ExerciseService>();
 
 var app = builder.Build();
 

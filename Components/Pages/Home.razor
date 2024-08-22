@@ -1,7 +1,48 @@
 ﻿@page "/"
+@inject IExerciseService ExerciseService
+@attribute [StreamRendering]
 
-<PageTitle>Home</PageTitle>
+<PageTitle>FitnessHub</PageTitle>
 
-<h1>Hello, world!</h1>
+<h1>Welcome to FitnessHub! 💪 </h1>
 
-Welcome to your new app.
+@if (plans == null)
+{
+    <p>Loading... ⌛</p>
+}
+else if (plans.Count == 0)
+{
+    <img src="https://images.pexels.com/photos/703012/pexels-photo-703012.jpeg?auto=compress&cs=tinysrgb&w=600">
+    <p class="welcomeMsg">No Exercise Plans yet! <a href="/workout/add" class="btn btn-info">Add One</a></p>
+}
+else 
+{
+    <img src="https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8ZXhlcmNpc2UlMjBzY2hlZHVsZXxlbnwwfHwwfHx8MA%3D%3D">
+    <h3 class="welcomeMsg">Upcoming Workouts:</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Category</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (ExercisePlan e in plans)
+        {
+            <tr>
+                <td> <a href="@($"/workouts/view/{e.WorkoutId}")">@e.Date.ToShortDateString()</a></td>
+                <td> @e.Category </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+@code {
+    List<ExercisePlan>? plans = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        plans = await ExerciseService.GetAllExercisePlans();
+    }
+}
